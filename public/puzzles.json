@@ -1,0 +1,39 @@
+[
+    {
+      "entry": "#001", 
+      "date": "2025-03-17",
+      "phrase": "HELLO WORLD",
+      "hint": "M is H",
+      "coded_phrase": "MIPPS ASVPH",
+      "additional_hints": [
+        "I is E",
+        "P is L",
+        "A famous phrase used often with computer programmers."
+      ]
+    },
+    {
+      "entry": "#002",  
+      "date": "2025-03-18",
+      "phrase": "HELL YEAH",
+      "hint": "X is L",
+      "coded_phrase": "FGXX KGWP",
+      "additional_hints": [
+        "G is E",
+        "K is Y",
+        "A casual expression of excitement, said by cool guys"
+      ]
+    },
+    {
+       "entry": "#003", 
+      "date": "2025-03-19",
+      "phrase": "BE HONEST",
+      "hint": "V is S",
+      "coded_phrase": "EH KRQHVW",
+      "additional_hints": [
+        "W is T",
+        "H is B",
+        "A phrase urging someone to be truthful"
+      ]
+    }
+  ]
+  

@@ -1,0 +1,450 @@
+<template>
+    <div class="cryptoquip-container">
+      <div class="title">Secret Agent</div>
+      <div class="second-title">{{ new Date().toLocaleDateString() }}</div>
+      <div class="index">{{ entry }}</div>
+      <div class="letter-container">
+        <div class="hello">Hello,</div>
+        <div class="instructions">Todays mission: decode this phrase. You will be given a hint when you start. If you need additional hints, there will be some available to you. This is a matter of national security. The president has requested that you do this. If you do not decode the puzzle, we will never talk to you again. Good Luck. </div>
+      <div class="hint">YOUR HINT IS: {{ currentHint }}</div>
+  
+      <div class="puzzle">
+        <div v-for="(char, index) in codedPhrase" :key="index" class="puzzle-char">
+          <span class="cipher">{{ char }}</span>
+  
+          <input
+            v-if="char.match(/[A-Z]/) && !isPuzzleLocked && !isGiveUp"
+            type="text"
+            maxlength="1"
+            v-model="guesses[index]"
+            @input="checkWin"
+          />
+          <span v-else class="non-letter">{{ char }}</span>
+        </div>
+      </div>
+  
+      <div class="progress">
+        {{ decodedText }}
+      </div>
+  
+      <button class="hint-btn" v-if="additionalHints.length > 0" @click="showHint" :disabled="isSolved || isPuzzleLocked || isGiveUp">
+        Show Another Hint
+      </button>
+  
+      <div v-if="currentHintToShow" class="additional-hint">
+        <div class="add-hint">You additional hint is: {{ currentHintToShow }}</div>
+      </div>
+
+      <div v-if="hintIndex === additionalHints.length && !isPuzzleLocked && !isSolved && !isGiveUp">
+        <button class="give-up-btn" @click="giveUp" :disabled="isPuzzleLocked">
+          Give Up?
+        </button>
+      </div>
+    </div> 
+      <div class="streak">
+        <div>Current Streak: {{ currentStreak }}</div>
+        <div>Highest Streak: {{ highestStreak }}</div>
+      </div>
+<div v-if="isPuzzleLocked" class="modal-overlay">
+  <div class="modal">
+    <div v-if="isSolved">
+      <h2>Great Work.</h2>
+      <p>Phrase: {{ originalText }}</p>
+      <p>Mission Complete Streak: {{ currentStreak }}</p>
+      <p>Your next mission is in: {{ countdown }}</p>
+    </div>
+    
+    <div v-else-if="isGiveUp">
+      <h2>Try again tomorrow!</h2>
+      <p><strong>Phrase:</strong> {{ originalText }}</p>
+      <p>Streak: {{ currentStreak }}</p>
+      <p>Next puzzle in: {{ countdown }}</p>
+    </div>
+  </div>
+</div>
+    </div>
+  </template>
+  
+  <script>
+export default {
+  data() {
+    return {
+      puzzles: [],
+      currentPuzzle: null,
+      originalText: "",
+      codedPhrase: "",
+      currentHint: "",
+      additionalHints: [],
+      currentHintToShow: "",
+      guesses: [],
+      isSolved: false,
+      isGiveUp: false,
+      hintIndex: 0,
+      countdown: null, 
+      currentStreak: 0,
+      highestStreak: 0,
+      giveUpMessage: "",
+      isPuzzleLocked: false,
+      modalContent: "",
+      entry: "",
+    };
+  },
+  computed: {
+    decodedText() {
+      return this.codedPhrase
+        .split("")
+        .map((char, index) =>
+          char.match(/[A-Z]/) ? (this.guesses[index] || "_").toUpperCase() : char
+        )
+        .join("");
+    },
+  },
+  methods: {
+    async loadPuzzles() {
+  try {
+    const response = await fetch("/puzzles.json");
+    this.puzzles = await response.json();
+    console.log(this.puzzles);
+    this.selectPuzzleForToday();
+    this.loadStreaks();
+  } catch (error) {
+    console.error("Failed to load puzzles:", error);
+  }
+},
+selectPuzzleForToday() {
+  const currentDate = new Date().toISOString().split("T")[0];
+  console.log("Current Date: ", currentDate);
+
+  const puzzleLocked = localStorage.getItem("puzzleLocked") === "true";
+  const isGiveUp = localStorage.getItem("isGiveUp") === "true";
+  const isSolved = localStorage.getItem("isSolved") === "true"; 
+
+  this.isSolved = isSolved;
+  this.isGiveUp = isGiveUp;
+
+  if (puzzleLocked) {
+    this.isPuzzleLocked = true;
+    this.startCountdownToMidnight();
+  } else if (isGiveUp) {
+    this.giveUpMessage = "You gave up. Try again next time!";
+    this.startCountdownToMidnight();
+  } else if (isSolved) {
+    this.startCountdownToMidnight();
+  } else {
+    console.log("Available puzzles: ", this.puzzles);
+
+    const puzzle = this.puzzles.find(p => p.date === currentDate);
+
+    if (puzzle) {
+      this.currentPuzzle = puzzle;
+      console.log("Selected Puzzle: ", this.currentPuzzle); 
+      this.originalText = puzzle.phrase;
+      this.currentHint = puzzle.hint;
+      this.codedPhrase = puzzle.coded_phrase;
+      this.additionalHints = puzzle.additional_hints || [];
+      this.hintIndex = 0;
+      this.entry = puzzle.entry || "No entry for today";
+    } else {
+      console.log("No puzzle found for today"); 
+    }
+  }
+},
+
+    checkWin() {
+      if (this.decodedText === this.originalText) {
+        this.isSolved = true;
+        this.isGiveUp = false;
+        this.lockPuzzleForToday(); 
+        this.incrementStreak();
+      }
+    },
+    revealSolution() {
+      alert(`The solution is: ${this.originalText}`);
+      this.lockPuzzleForToday(); 
+      this.incrementStreak();
+    },
+    showHint() {
+      if (this.hintIndex < this.additionalHints.length) {
+        this.currentHintToShow = this.additionalHints[this.hintIndex];
+        this.hintIndex++;
+
+        if (this.hintIndex === this.additionalHints.length) {
+          this.showGiveUp = true;
+        }
+      } else {
+        this.currentHintToShow = "No more hints available!";
+      }
+    },
+    lockPuzzleForToday() {
+    this.isPuzzleLocked = true; 
+    localStorage.setItem("puzzleLocked", "true");
+    localStorage.setItem("isSolved", "true");
+    this.modalContent = "You solved it!"; 
+    this.startCountdownToMidnight();
+  },
+  
+  giveUp() {
+    this.isGiveUp = true;
+    this.isSolved = false;
+    this.lockPuzzleForToday();
+    this.giveUpMessage = "You gave up. Try again next time!";
+    localStorage.setItem("isGiveUp", "true");
+    localStorage.setItem("isSolved", "false");
+    this.modalContent = "Try again tomorrow!";
+  },
+    startCountdownToMidnight() {
+      const now = new Date();
+      const midnight = new Date(now);
+      midnight.setHours(24, 0, 0, 0);
+
+      const countdownInterval = setInterval(() => {
+        const timeLeft = midnight - new Date();
+        if (timeLeft <= 0) {
+          clearInterval(countdownInterval);
+          this.isSolved = false;
+          this.selectPuzzleForToday();
+          this.resetStreak();
+          localStorage.removeItem("puzzleLocked");
+        } else {
+          const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+          const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+          const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+          this.countdown = `${hours}h ${minutes}m ${seconds}s`;
+        }
+      }, 1000);
+    },
+    incrementStreak() {
+      this.currentStreak++;
+      localStorage.setItem("currentStreak", this.currentStreak);
+      if (this.currentStreak > this.highestStreak) {
+        this.highestStreak = this.currentStreak;
+        localStorage.setItem("highestStreak", this.highestStreak);
+      }
+    },
+    resetStreak() {
+      this.currentStreak = 0;
+      localStorage.setItem("currentStreak", this.currentStreak);
+    },
+    loadStreaks() {
+      this.highestStreak = parseInt(localStorage.getItem("highestStreak")) || 0;
+      this.currentStreak = parseInt(localStorage.getItem("currentStreak")) || 0;
+      if (!this.isPuzzleSolvedToday()) {
+        this.currentStreak = 0;
+      }
+    },
+    isPuzzleSolvedToday() {
+      const puzzleSolved = localStorage.getItem("isSolved") === "true";
+      const isGiveUp = localStorage.getItem("isGiveUp") === "true";
+      return puzzleSolved || isGiveUp;
+    },
+  },
+  mounted() {
+    this.loadPuzzles();
+  },
+};
+
+  </script>
+
+<style>
+
+* {
+    font-family: "Special Elite", system-ui;
+}
+.cryptoquip-container {
+  font-family: "Courier New", Courier, monospace;
+  padding: 20px;
+}
+
+.letter-container {
+    margin-left: 25rem;
+    margin-right: 25rem;
+    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+    padding: 7rem;
+    background-color: #fbfefe;
+}
+
+.title {
+font-size: 30px;
+color: #252525;
+}
+
+.hello {
+    padding-bottom: 3rem;
+    color: #252525;
+    background-color: #fbfefe;
+}
+
+.instructions {
+    display: flex;
+    justify-content: center;
+    text-align: start;
+    text-indent: 2rem;
+    color: #252525;
+    background-color: #fbfefe;
+}
+
+.hint {
+  font-size: 20px;
+  color: #252525;
+  margin-bottom: 10px;
+  padding-bottom: 5rem;
+  padding-top: 3rem;
+  text-align: center;
+  background-color: #fbfefe;
+  align-items: center;
+}
+
+p, h2 {
+    background-color: #fbfefe;
+}
+
+.add-hint {
+    background-color: #fbfefe;
+}
+
+.puzzle {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  justify-content: center;
+  margin-bottom: 20px;
+  background-color: #fbfefe;
+}
+
+.puzzle-char {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 40px;
+  height: 50px;
+  border: 1px dashed #252525;
+  background-color: white;
+  font-size: 18px;
+  text-transform: uppercase;
+  background-color: #fbfefe;
+  padding: .3rem;
+}
+
+.cipher {
+  font-size: 18px;
+  font-weight: 500;
+  color: #444;
+  margin-bottom: 5px;
+  background-color: white;
+  border-bottom: solid 1px black;  
+  background-color: #fbfefe;
+}
+
+.puzzle-char input {
+  width: 25px;
+  height: 25px;
+  text-align: center;
+  font-size: 18px;
+  border: none;
+  background: transparent;
+  outline: none;
+  text-transform: uppercase;
+  
+}
+
+.non-letter {
+  font-size: 20px;
+  color: #555;
+  margin: 0 5px;
+  background-color: #fbfefe;
+}
+
+.progress {
+  margin-top: 3rem;
+  font-size: 40px;
+  color: #383737;
+  background-color: #fbfefe;
+  text-align: center;
+}
+
+.streak {
+    color: #313030;
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 1rem;
+}
+
+.win-message {
+  margin-top: 15px;
+  color: #4caf50;
+  font-size: 22px;
+  font-weight: bold;
+  animation: pop 0.5s ease-out;
+}
+
+.hint-btn {
+  margin-top: 15px;
+  padding: 8px 16px;
+  background: #3d3d3d;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+
+.hint-btn:hover {
+    background: #2D4B73;
+}
+
+.give-up-btn {
+  background-color: #0A0A0A;
+  margin-top: 15px;
+  padding: 8px 16px;
+  background: #3d3d3d;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+
+.give-up-btn:hover {
+  background: #c03631;
+}
+
+button:disabled {
+  background: #999;
+  cursor: not-allowed;
+}
+
+.additional-hint {
+  margin-top: 20px;
+  font-size: 18px;
+  color: #444;
+  background-color: #fbfefe;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  background-color: white;
+  padding: 200px;
+  border-radius: 8px;
+  max-width: 400px;
+  width: 100%;
+  text-align: center;
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(0.8);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+</style>
