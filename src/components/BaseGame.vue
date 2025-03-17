@@ -104,7 +104,6 @@ export default {
   try {
     const response = await fetch("/puzzles.json");
     this.puzzles = await response.json();
-    console.log(this.puzzles);
     this.selectPuzzleForToday();
     this.loadStreaks();
   } catch (error) {
@@ -201,10 +200,14 @@ selectPuzzleForToday() {
         const timeLeft = midnight - new Date();
         if (timeLeft <= 0) {
           clearInterval(countdownInterval);
-          this.isSolved = false;
-          this.selectPuzzleForToday();
-          this.resetStreak();
           localStorage.removeItem("puzzleLocked");
+          localStorage.removeItem("isSolved");
+          localStorage.removeItem("isGiveUp");
+          this.isSolved = false;
+          this.isGiveUp = false;
+          this.isPuzzleLocked = false;
+          this.selectPuzzleForToday();
+          this.resetStreak(); // might remove, testing
         } else {
           const hours = Math.floor(timeLeft / (1000 * 60 * 60));
           const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
@@ -228,7 +231,7 @@ selectPuzzleForToday() {
     loadStreaks() {
       this.highestStreak = parseInt(localStorage.getItem("highestStreak")) || 0;
       this.currentStreak = parseInt(localStorage.getItem("currentStreak")) || 0;
-      if (!this.isPuzzleSolvedToday()) {
+      if (!this.isPuzzleSolvedToday() && !this.isPuzzleLocked) {
         this.currentStreak = 0;
       }
     },
