@@ -1,69 +1,71 @@
 <template>
-    <div class="cryptoquip-container">
-      <div class="title">Secret Agent</div>
-      <div class="second-title">{{ new Date().toLocaleDateString() }}</div>
-      <div class="index">{{ entry }}</div>
-      <div class="letter-container">
-        <div class="hello">Hello,</div>
-        <div class="instructions">Todays mission: decode this phrase. You will be given a hint when you start. If you need additional hints, there will be some available to you. This is a matter of national security. The president has requested that you do this. If you do not decode the puzzle, we will never talk to you again. Good Luck. </div>
-      <div class="hint">YOUR HINT IS: {{ currentHint }}</div>
-  
-      <div class="puzzle">
-        <div v-for="(char, index) in codedPhrase" :key="index" class="puzzle-char">
-          <span class="cipher">{{ char }}</span>
-  
-          <input
-            v-if="char.match(/[A-Z]/) && !isPuzzleLocked && !isGiveUp"
-            type="text"
-            maxlength="1"
-            v-model="guesses[index]"
-            @input="checkWin"
-          />
-          <span v-else class="non-letter">{{ char }}</span>
-        </div>
-      </div>
-  
-      <div class="progress">
-        {{ decodedText }}
-      </div>
-  
-      <button class="hint-btn" v-if="additionalHints.length > 0" @click="showHint" :disabled="isSolved || isPuzzleLocked || isGiveUp">
-        Show Another Hint
-      </button>
-  
-      <div v-if="currentHintToShow" class="additional-hint">
-        <div class="add-hint">You additional hint is: {{ currentHintToShow }}</div>
-      </div>
+  <div class="cryptoquip-container">
+    <div class="title">Secret Agent</div>
+    <div class="second-title">{{ new Date().toLocaleDateString() }}</div>
+    <div class="index">{{ entry }}</div>
+    <div class="letter-container">
+      <div class="hello">Hello,</div>
+      <div class="instructions">Todays mission: decode this phrase. You will be given a hint when you start. If you need additional hints, there will be some available to you. This is a matter of national security. The president has requested that you do this. If you do not decode the puzzle, we will never talk to you again. Good Luck. </div>
+    <div class="hint">YOUR HINT IS: {{ currentHint }}</div>
 
-      <div v-if="hintIndex === additionalHints.length && !isPuzzleLocked && !isSolved && !isGiveUp">
-        <button class="give-up-btn" @click="giveUp" :disabled="isPuzzleLocked">
-          Give Up?
-        </button>
+    <div class="puzzle">
+      <div v-for="(char, index) in codedPhrase" :key="index" class="puzzle-char">
+        <span class="cipher">{{ char }}</span>
+
+        <input
+          v-if="char.match(/[A-Z]/) && !isPuzzleLocked && !isGiveUp"
+          type="text"
+          maxlength="1"
+          v-model="guesses[index]"
+          @input="checkWin"
+        />
+        <span v-else class="non-letter">{{ char }}</span>
       </div>
-    </div> 
-      <div class="streak">
-        <div>Current Streak: {{ currentStreak }}</div>
-        <div>Highest Streak: {{ highestStreak }}</div>
-      </div>
-<div v-if="isPuzzleLocked" class="modal-overlay">
-  <div class="modal">
-    <div v-if="isSolved">
-      <h2>Great Work.</h2>
-      <p>Phrase: {{ originalText }}</p>
-      <p>Mission Complete Streak: {{ currentStreak }}</p>
-      <p>Your next mission is in: {{ countdown }}</p>
     </div>
-    
-    <div v-else-if="isGiveUp">
-      <h2>Try again tomorrow!</h2>
-      <p><strong>Phrase:</strong> {{ originalText }}</p>
-      <p>Streak: {{ currentStreak }}</p>
-      <p>Next puzzle in: {{ countdown }}</p>
+
+    <div class="progress">
+      {{ decodedText }}
+    </div>
+    <div class="hint-column">
+          <button class="hint-btn" v-if="additionalHints.length > 0" @click="showHint" :disabled="isSolved || isPuzzleLocked || isGiveUp">
+      Unlock Hint
+    </button>
+    <div class="hint-column">
+    <div v-for="(hint, index) in additionalHints" :key="index" class="hint-box" :class="{'locked': index >= hintIndex}">
+      Hint {{ index + 2 }}: {{ index < hintIndex ? hint : 'locked' }}
     </div>
   </div>
-</div>
     </div>
-  </template>
+
+    <div class="give-up" v-if="hintIndex === additionalHints.length && !isPuzzleLocked && !isSolved && !isGiveUp">
+      <button class="give-up-btn" @click="giveUp" :disabled="isPuzzleLocked">
+        Give Up?
+      </button>
+    </div>
+  </div> 
+    <div class="streak">
+      <div>Current Streak: {{ currentStreak }}</div>
+      <div>Highest Streak: {{ highestStreak }}</div>
+    </div>
+<div v-if="isPuzzleLocked" class="modal-overlay">
+<div class="modal">
+  <div v-if="isSolved">
+    <h2>Great Work.</h2>
+    <p>Phrase: {{ originalText }}</p>
+    <p>Mission Complete Streak: {{ currentStreak }}</p>
+    <p>Your next mission is in: {{ countdown }}</p>
+  </div>
+  
+  <div v-else-if="isGiveUp">
+    <h2>Try again tomorrow!</h2>
+    <p><strong>Phrase:</strong> {{ originalText }}</p>
+    <p>Streak: {{ currentStreak }}</p>
+    <p>Next puzzle in: {{ countdown }}</p>
+  </div>
+</div>
+</div>
+  </div>
+</template>
   
   <script>
 export default {
@@ -222,6 +224,24 @@ selectPuzzleForToday() {
       if (this.currentStreak > this.highestStreak) {
         this.highestStreak = this.currentStreak;
         localStorage.setItem("highestStreak", this.highestStreak);
+      }
+    },
+    resetPuzzle() {
+      this.isSolved = false;
+      this.isGiveUp = false;
+      this.isPuzzleLocked = false;
+      this.guesses = [];
+      this.currentHintToShow = "";
+      this.hintIndex = 0;
+      localStorage.removeItem("puzzleLocked");
+      localStorage.removeItem("isSolved");
+      localStorage.removeItem("isGiveUp");
+      this.selectPuzzleForToday();
+    },
+    showHint() {
+      if (this.hintIndex < this.additionalHints.length) {
+        this.currentHintToShow = this.additionalHints[this.hintIndex];
+        this.hintIndex++;
       }
     },
     resetStreak() {
@@ -388,7 +408,49 @@ p, h2 {
   color: #fff;
   border: none;
   cursor: pointer;
+  width: 30%;
 }
+
+.hint-column {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  background-color: #fbfefe;
+  width: 100%; 
+}
+
+.give-up {
+  background-color: #fbfefe;
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.hint-box { 
+  background-color: #fbfefe;
+  text-align: start;
+  width: 80%; 
+  box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px;
+  transition: background-color 0.3s ease;
+  padding: .3rem;
+  border-radius: .3rem;
+}
+
+.hint-box:not(.locked) {
+  background-color: #fbfefe;
+  color: #1f1e1e;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.hint-box.locked {
+  background-color: #fbfefe;
+  color: #1f1e1e;
+  font-family: 'Courier New', Courier, monospace;
+}
+
 
 .hint-btn:hover {
     background: #2D4B73;
@@ -398,7 +460,7 @@ p, h2 {
   background-color: #0A0A0A;
   margin-top: 15px;
   padding: 8px 16px;
-  background: #3d3d3d;
+  background: #bd2d2d;
   color: #fff;
   border: none;
   cursor: pointer;
