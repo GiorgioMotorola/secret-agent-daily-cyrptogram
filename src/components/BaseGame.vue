@@ -5,7 +5,7 @@
     <div class="index">{{ entry }}</div>
     <div class="letter-container">
       <div class="hello">Hello,</div>
-      <div class="instructions">Todays mission: decode this phrase. You will be given a hint when you start. If you need additional hints, there will be some available to you. This is a matter of national security. The president has requested that you do this. If you do not decode the puzzle, we will never talk to you again. Good Luck. </div>
+      <div class="instructions">Todays mission: decode this phrase. The rules are simple. Each top letter in each box stands for another letter. If you think X equals O, it will equal O throughout the puzzle. The Solution is accompished by trial and error but you will be given a starting hint seen below. If you need additional hints to solve the puzzle, press 'Unlock Hint'. Enter your guess for each box directly under the existing letter. Good Luck. </div>
     <div class="hint">YOUR HINT IS: {{ currentHint }}</div>
 
     <div class="puzzle">
@@ -132,13 +132,12 @@ selectPuzzleForToday() {
   } else if (isSolved) {
     this.startCountdownToMidnight();
   } else {
-    console.log("Available puzzles: ", this.puzzles);
+
 
     const puzzle = this.puzzles.find(p => p.date === currentDate);
 
     if (puzzle) {
       this.currentPuzzle = puzzle;
-      console.log("Selected Puzzle: ", this.currentPuzzle); 
       this.originalText = puzzle.phrase;
       this.currentHint = puzzle.hint;
       this.codedPhrase = puzzle.coded_phrase;
@@ -193,31 +192,45 @@ selectPuzzleForToday() {
     localStorage.setItem("isSolved", "false");
     this.modalContent = "Try again tomorrow!";
   },
-    startCountdownToMidnight() {
-      const now = new Date();
-      const midnight = new Date(now);
-      midnight.setHours(24, 0, 0, 0);
+  startCountdownToMidnight() {
+  const now = new Date();
+  
+  const utcNow = now.getTime() + now.getTimezoneOffset() * 60000;
 
-      const countdownInterval = setInterval(() => {
-        const timeLeft = midnight - new Date();
-        if (timeLeft <= 0) {
-          clearInterval(countdownInterval);
-          localStorage.removeItem("puzzleLocked");
-          localStorage.removeItem("isSolved");
-          localStorage.removeItem("isGiveUp");
-          this.isSolved = false;
-          this.isGiveUp = false;
-          this.isPuzzleLocked = false;
-          this.selectPuzzleForToday();
-          this.resetStreak(); // might remove, testing
-        } else {
-          const hours = Math.floor(timeLeft / (1000 * 60 * 60));
-          const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-          const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-          this.countdown = `${hours}h ${minutes}m ${seconds}s`;
-        }
-      }, 1000);
-    },
+  const estOffset = -5 * 60 * 60000; 
+  const edtOffset = -4 * 60 * 60000; 
+
+  const estDate = new Date(utcNow + estOffset);
+  const january = new Date(estDate.getFullYear(), 0, 1);
+  const july = new Date(estDate.getFullYear(), 6, 1);
+  const isDST = estDate.getTimezoneOffset() < Math.max(january.getTimezoneOffset(), july.getTimezoneOffset());
+
+  const easternOffset = isDST ? edtOffset : estOffset;
+  const easternTime = new Date(utcNow + easternOffset);
+
+  const midnightEST = new Date(easternTime);
+  midnightEST.setHours(24, 0, 0, 0);
+
+  const countdownInterval = setInterval(() => {
+    const timeLeft = midnightEST - (new Date(utcNow + easternOffset));
+    if (timeLeft <= 0) {
+      clearInterval(countdownInterval);
+      localStorage.removeItem("puzzleLocked");
+      localStorage.removeItem("isSolved");
+      localStorage.removeItem("isGiveUp");
+      this.isSolved = false;
+      this.isGiveUp = false;
+      this.isPuzzleLocked = false;
+      this.selectPuzzleForToday();
+      this.resetStreak(); 
+    } else {
+      const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+      const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+      this.countdown = `${hours}h ${minutes}m ${seconds}s`;
+    }
+  }, 1000);
+},
     incrementStreak() {
       this.currentStreak++;
       localStorage.setItem("currentStreak", this.currentStreak);
@@ -279,8 +292,8 @@ selectPuzzleForToday() {
 }
 
 .letter-container {
-    margin-left: 25rem;
-    margin-right: 25rem;
+    margin-left: 10rem;
+    margin-right: 10rem;
     box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
     padding: 7rem;
     background-color: #fbfefe;
@@ -309,8 +322,8 @@ color: #252525;
 .hint {
   font-size: 20px;
   color: #252525;
-  margin-bottom: 10px;
-  padding-bottom: 5rem;
+  margin-bottom: 1px;
+  padding-bottom: 3rem;
   padding-top: 3rem;
   text-align: center;
   background-color: #fbfefe;

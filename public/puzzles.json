@@ -1,39 +1,118 @@
 [
-    {
-      "entry": "#001", 
-      "date": "2025-03-17",
-      "phrase": "HELLO WORLD",
-      "hint": "M is H",
-      "coded_phrase": "MIPPS ASVPH",
-      "additional_hints": [
-        "I is E",
-        "P is L",
-        "A famous phrase used often with computer programmers."
-      ]
-    },
-    {
-      "entry": "#002",  
-      "date": "2025-03-18",
-      "phrase": "HELL YEAH",
-      "hint": "X is L",
-      "coded_phrase": "FGXX KGWP",
-      "additional_hints": [
-        "G is E",
-        "K is Y",
-        "A casual expression of excitement, said by cool guys"
-      ]
-    },
-    {
-       "entry": "#003", 
-      "date": "2025-03-19",
-      "phrase": "BE HONEST",
-      "hint": "V is S",
-      "coded_phrase": "EH KRQHVW",
-      "additional_hints": [
-        "W is T",
-        "H is B",
-        "A phrase urging someone to be truthful"
-      ]
-    }
-  ]
-  
+  {
+    "entry": "#001", 
+    "date": "2025-03-17",
+    "time": "00:00:00",
+    "phrase": "HELLO WORLD",
+    "hint": "M equals H",
+    "coded_phrase": "MIPPS ASVPH",
+    "additional_hints": [
+      "I equals E",
+      "P equals L",
+      "A famous phrase used often with computer programmers."
+    ]
+  },
+  {
+    "entry": "#002", 
+    "date": "2025-03-18",
+    "time": "00:00:00",
+    "phrase": "BE HONEST",
+    "hint": "V equals S",
+    "coded_phrase": "EH KRQHVW",
+    "additional_hints": [
+      "W equals T",
+      "H equals E",
+      "A phrase urging someone to be truthful"
+    ]
+  }, {
+    "entry": "#003", 
+    "date": "2025-03-19",
+    "time": "00:00:00",
+    "phrase": "INTO THE WILD",
+    "hint": "Y equals I",
+    "coded_phrase": "YKHZ HLR DYPE",
+    "additional_hints": [
+      "H equals T",
+      "L equals H",
+      "A movie title released in 2007"
+    ]
+  }, 
+  {
+    "entry": "#004", 
+    "date": "2025-03-20",
+    "time": "00:00:00",
+    "phrase": "A CLEAN SWEEP",
+    "hint": "G equals A",
+    "coded_phrase": "G BCWGQ EOWWN",
+    "additional_hints": [
+      "B equals C",
+      "W equals E",
+      "A victory in which one side or team wins every game"
+    ]
+  }, 
+  {
+    "entry": "#005", 
+    "date": "2025-03-21",
+    "time": "00:00:00",
+    "phrase": "SMOOTH SAILING",
+    "hint": "D equals L",
+    "coded_phrase": "MXHHTV MECDCJL",
+    "additional_hints": [
+      "C equals I",
+      "H equals O",
+      "No resistance, as if the winds were perfect"
+    ]
+  },
+  {
+    "entry": "#006", 
+    "date": "2025-03-12",
+    "time": "00:00:00",
+    "phrase": "THE SOUND OF SILENCE",
+    "hint": "O equals E",
+    "coded_phrase": "DGO RVSLA VU RNJOLQO",
+    "additional_hints": [
+      "R equals S",
+      "L equals N",
+      "Quietness that speaks volumes"
+    ]
+  },
+  {
+    "entry": "#007", 
+    "date": "2025-03-13",
+    "time": "00:00:00",
+    "phrase": "SPEAK OF THE DEVIL",
+    "hint": "N equals T",
+    "coded_phrase": "LVIBE QU NSI AUWDG",
+    "additional_hints": [
+      "I equals E",
+      "B equals A",
+      "Mention someone, and they appear"
+    ]
+  },
+  {
+    "entry": "#008", 
+    "date": "2025-03-14",
+    "time": "00:00:00",
+    "phrase": "A BLAZE OF GLORY",
+    "hint": "Z equals A",
+    "coded_phrase": "Z CUZTK QO MUQSH",
+    "additional_hints": [
+      "U equals L",
+      "Q equals O",
+      "Something you go out with"
+    ]
+  },
+  {
+    "entry": "#009", 
+    "date": "2025-03-15",
+    "time": "00:00:00",
+    "phrase": "RISE ABOVE",
+    "hint": "Y equals O",
+    "coded_phrase": "OBRZ NGYMZ",
+    "additional_hints": [
+      "Z equals E",
+      "O equals R",
+      "Overcome adversity. Also a famous Hardcore punk bands most famous song"
+    ]
+  }
+]
