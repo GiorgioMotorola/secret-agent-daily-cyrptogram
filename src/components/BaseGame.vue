@@ -58,7 +58,7 @@
   
   <div v-else-if="isGiveUp">
     <h2>Try again tomorrow!</h2>
-    <p><strong>Phrase:</strong> {{ originalText }}</p>
+    <p>Phrase: {{ originalText }}</p>
     <p>Streak: {{ currentStreak }}</p>
     <p>Next puzzle in: {{ countdown }}</p>
   </div>
@@ -176,12 +176,12 @@ selectPuzzleForToday() {
       }
     },
     lockPuzzleForToday() {
-    this.isPuzzleLocked = true; 
-    localStorage.setItem("puzzleLocked", "true");
-    localStorage.setItem("isSolved", "true");
-    this.modalContent = "You solved it!"; 
-    this.startCountdownToMidnight();
-  },
+  this.isPuzzleLocked = true;
+  localStorage.setItem("puzzleLocked", "true");
+  localStorage.setItem("isSolved", this.isSolved ? "true" : "false");
+  this.modalContent = this.isSolved ? "You solved it!" : "Try again tomorrow!";
+  this.startCountdownToMidnight();
+},
   
   giveUp() {
     this.isGiveUp = true;
@@ -193,43 +193,39 @@ selectPuzzleForToday() {
     this.modalContent = "Try again tomorrow!";
   },
   startCountdownToMidnight() {
-  const now = new Date();
-  
-  const utcNow = now.getTime() + now.getTimezoneOffset() * 60000;
+  const updateCountdown = () => {
+    const now = new Date();
 
-  const estOffset = -5 * 60 * 60000; 
-  const edtOffset = -4 * 60 * 60000; 
+    const utcNow = now.getTime() + now.getTimezoneOffset() * 60000;
 
-  const estDate = new Date(utcNow + estOffset);
-  const january = new Date(estDate.getFullYear(), 0, 1);
-  const july = new Date(estDate.getFullYear(), 6, 1);
-  const isDST = estDate.getTimezoneOffset() < Math.max(january.getTimezoneOffset(), july.getTimezoneOffset());
+    const estOffset = -5 * 60 * 60000;
+    const edtOffset = -4 * 60 * 60000;
 
-  const easternOffset = isDST ? edtOffset : estOffset;
-  const easternTime = new Date(utcNow + easternOffset);
+    const estDate = new Date(utcNow + estOffset);
+    const january = new Date(estDate.getFullYear(), 0, 1);
+    const july = new Date(estDate.getFullYear(), 6, 1);
+    const isDST = estDate.getTimezoneOffset() < Math.max(january.getTimezoneOffset(), july.getTimezoneOffset());
+    const easternOffset = isDST ? edtOffset : estOffset;
 
-  const midnightEST = new Date(easternTime);
-  midnightEST.setHours(24, 0, 0, 0);
+    const easternTime = new Date(utcNow + easternOffset);
 
-  const countdownInterval = setInterval(() => {
-    const timeLeft = midnightEST - (new Date(utcNow + easternOffset));
+    const midnightEST = new Date(easternTime);
+    midnightEST.setHours(24, 0, 0, 0);
+
+    const timeLeft = midnightEST - easternTime;
+
     if (timeLeft <= 0) {
-      clearInterval(countdownInterval);
-      localStorage.removeItem("puzzleLocked");
-      localStorage.removeItem("isSolved");
-      localStorage.removeItem("isGiveUp");
-      this.isSolved = false;
-      this.isGiveUp = false;
-      this.isPuzzleLocked = false;
-      this.selectPuzzleForToday();
-      this.resetStreak(); 
+      this.resetForNewDay();
     } else {
       const hours = Math.floor(timeLeft / (1000 * 60 * 60));
       const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
       const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
       this.countdown = `${hours}h ${minutes}m ${seconds}s`;
     }
-  }, 1000);
+  };
+
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
 },
     incrementStreak() {
       this.currentStreak++;
@@ -239,6 +235,21 @@ selectPuzzleForToday() {
         localStorage.setItem("highestStreak", this.highestStreak);
       }
     },
+    resetForNewDay() {
+  console.log("New day detected! Resetting puzzle...");
+
+  localStorage.removeItem("puzzleLocked");
+  localStorage.removeItem("isSolved");
+  localStorage.removeItem("isGiveUp");
+
+  this.isSolved = false;
+  this.isGiveUp = false;
+  this.isPuzzleLocked = false;
+
+  this.selectPuzzleForToday();
+  this.resetStreak(); // Reset streak if not solved
+  this.startCountdownToMidnight();
+},
     resetPuzzle() {
       this.isSolved = false;
       this.isGiveUp = false;
@@ -275,8 +286,20 @@ selectPuzzleForToday() {
     },
   },
   mounted() {
-    this.loadPuzzles();
-  },
+  this.loadPuzzles();
+
+  const lastPuzzleDate = localStorage.getItem("lastPuzzleDate");
+  const today = new Date().toISOString().split("T")[0];
+
+  if (lastPuzzleDate !== today) {
+    this.resetForNewDay();
+    localStorage.setItem("lastPuzzleDate", today);
+  } else if (localStorage.getItem("puzzleLocked") === "true") {
+    this.isPuzzleLocked = true;
+    this.modalContent = "Puzzle is locked. New one arrives at midnight!";
+    this.startCountdownToMidnight();
+  }
+}
 };
 
   </script>
