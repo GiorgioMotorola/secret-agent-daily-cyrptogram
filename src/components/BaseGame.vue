@@ -63,7 +63,7 @@
     <p>Next puzzle in: {{ countdown }}</p>
   </div>
   <button @click="generateShareResult" v-if="isSolved || isGiveUp" class="share-button">
-  📲 Share Result
+  Share Result
 </button>
 </div>
 </div>
@@ -250,7 +250,7 @@ this.isGiveUp = false;
 this.isPuzzleLocked = false;
 
 this.selectPuzzleForToday();
-this.resetStreak(); // Reset streak if not solved
+this.resetStreak();
 this.startCountdownToMidnight();
 },
 resetPuzzle() {
@@ -565,7 +565,7 @@ button:disabled {
   text-align: center;
 }
 .share-button {
-  background-color: #4caf50;
+  background-color: #2D4B73;
   color: #fff;
   padding: 10px 20px;
   border: none;
