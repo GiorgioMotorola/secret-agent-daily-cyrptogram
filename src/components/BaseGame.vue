@@ -47,26 +47,36 @@
       <div>Current Streak: {{ currentStreak }}</div>
       <div>Highest Streak: {{ highestStreak }}</div>
     </div>
-<div v-if="isPuzzleLocked" class="modal-overlay">
-<div class="modal">
-  <div v-if="isSolved">
-    <h2>Great Work.</h2>
-    <p>Phrase: {{ originalText }}</p>
-    <p>Mission Complete Streak: {{ currentStreak }}</p>
-    <p>Your next mission is in: {{ countdown }}</p>
+    <div v-if="isPuzzleLocked || newPuzzleReady" class="modal-overlay">
+  <div class="modal">
+    <div v-if="isSolved">
+      <h2>Great Work.</h2>
+      <p>Phrase: {{ originalText }}</p>
+      <p>Mission Complete Streak: {{ currentStreak }}</p>
+      <p>Your next mission is in: {{ countdown }}</p>
+    </div>
+    <div v-else-if="isGiveUp">
+      <h2>Try again tomorrow!</h2>
+      <p>Phrase: {{ originalText }}</p>
+      <p>Streak: {{ currentStreak }}</p>
+      <p>Next puzzle in: {{ countdown }}</p>
+    </div>
+
+    <div v-else-if="newPuzzleReady">
+      <h2>New Puzzle Available!</h2>
+      <p>It’s a brand new day. Time for a new challenge!</p>
+      <button @click="resetPuzzle" class="new-puzzle-button">Start New Puzzle</button>
+    </div>
+
+    <button 
+      @click="generateShareResult" 
+      v-if="isSolved || isGiveUp" 
+      class="share-button">
+      Share Result
+    </button>
   </div>
-  
-  <div v-else-if="isGiveUp">
-    <h2>Try again tomorrow!</h2>
-    <p>Phrase: {{ originalText }}</p>
-    <p>Streak: {{ currentStreak }}</p>
-    <p>Next puzzle in: {{ countdown }}</p>
-  </div>
-  <button @click="generateShareResult" v-if="isSolved || isGiveUp" class="share-button">
-  Share Result
-</button>
 </div>
-</div>
+
   </div>
 </template>
   
@@ -92,6 +102,7 @@ export default {
       isPuzzleLocked: false,
       modalContent: "",
       entry: "",
+      newPuzzleReady: false,
     };
   },
   computed: {
@@ -196,39 +207,21 @@ giveUp() {
   this.modalContent = "Try again tomorrow!";
 },
 startCountdownToMidnight() {
-const updateCountdown = () => {
   const now = new Date();
+  console.log("⏳ Current time:", now.toLocaleString());
 
-  const utcNow = now.getTime() + now.getTimezoneOffset() * 60000;
+  const midnight = new Date();
+  midnight.setUTCHours(24, 0, 0, 0); 
 
-  const estOffset = -5 * 60 * 60000;
-  const edtOffset = -4 * 60 * 60000;
+  console.log("🎯 Target reset time:", midnight.toLocaleString());
 
-  const estDate = new Date(utcNow + estOffset);
-  const january = new Date(estDate.getFullYear(), 0, 1);
-  const july = new Date(estDate.getFullYear(), 6, 1);
-  const isDST = estDate.getTimezoneOffset() < Math.max(january.getTimezoneOffset(), july.getTimezoneOffset());
-  const easternOffset = isDST ? edtOffset : estOffset;
+  const timeLeft = midnight - now;
+  console.log(`⏳ Time until reset: ${Math.floor(timeLeft / 1000)}s`);
 
-  const easternTime = new Date(utcNow + easternOffset);
-
-  const midnightEST = new Date(easternTime);
-  midnightEST.setHours(24, 0, 0, 0);
-
-  const timeLeft = midnightEST - easternTime;
-
-  if (timeLeft <= 0) {
+  setTimeout(() => {
+    console.log("🚀 Midnight hit — resetting!");
     this.resetForNewDay();
-  } else {
-    const hours = Math.floor(timeLeft / (1000 * 60 * 60));
-    const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-    this.countdown = `${hours}h ${minutes}m ${seconds}s`;
-  }
-};
-
-updateCountdown();
-setInterval(updateCountdown, 1000);
+  }, timeLeft);
 },
 incrementStreak() {
   this.currentStreak++;
@@ -239,30 +232,39 @@ incrementStreak() {
   }
 },
 resetForNewDay() {
-console.log("New day detected! Resetting puzzle...");
+  console.log("🎉 Resetting for new day!");
+  localStorage.removeItem("puzzleLocked");
+  localStorage.removeItem("isSolved");
+  localStorage.removeItem("isGiveUp");
+  localStorage.setItem("lastPuzzleDate", new Date().toISOString().split("T")[0]);
 
-localStorage.removeItem("puzzleLocked");
-localStorage.removeItem("isSolved");
-localStorage.removeItem("isGiveUp");
+  this.isSolved = false;
+  this.isGiveUp = false;
+  this.isPuzzleLocked = false;
+  this.modalContent = "";
+  this.newPuzzleReady = true;
 
-this.isSolved = false;
-this.isGiveUp = false;
-this.isPuzzleLocked = false;
+  this.guesses = [];
+  this.currentHintToShow = "";
+  this.hintIndex = 0;
 
-this.selectPuzzleForToday();
-this.resetStreak();
-this.startCountdownToMidnight();
+  this.selectPuzzleForToday();
+  this.$forceUpdate();
 },
+
 resetPuzzle() {
   this.isSolved = false;
   this.isGiveUp = false;
   this.isPuzzleLocked = false;
+  this.newPuzzleReady = false;
   this.guesses = [];
   this.currentHintToShow = "";
   this.hintIndex = 0;
+
   localStorage.removeItem("puzzleLocked");
   localStorage.removeItem("isSolved");
   localStorage.removeItem("isGiveUp");
+
   this.selectPuzzleForToday();
 },
 showHint() {
@@ -317,14 +319,16 @@ mounted() {
   const today = new Date().toISOString().split("T")[0];
 
   if (lastPuzzleDate !== today) {
+    console.log("🌅 New day detected — resetting!");
     this.resetForNewDay();
-    localStorage.setItem("lastPuzzleDate", today);
-  } else if (localStorage.getItem("puzzleLocked") === "true") {
+  }
+
+  if (localStorage.getItem("puzzleLocked") === "true") {
     this.isPuzzleLocked = true;
     this.modalContent = "Puzzle is locked. New one arrives at midnight!";
     this.startCountdownToMidnight();
-    }
   }
+}
 };
 
   </script>
