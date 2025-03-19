@@ -62,6 +62,9 @@
     <p>Streak: {{ currentStreak }}</p>
     <p>Next puzzle in: {{ countdown }}</p>
   </div>
+  <button @click="generateShareResult" v-if="isSolved || isGiveUp" class="share-button">
+  📲 Share Result
+</button>
 </div>
 </div>
   </div>
@@ -150,142 +153,164 @@ selectPuzzleForToday() {
   }
 },
 
-    checkWin() {
-      if (this.decodedText === this.originalText) {
-        this.isSolved = true;
-        this.isGiveUp = false;
-        this.lockPuzzleForToday(); 
-        this.incrementStreak();
-      }
-    },
-    revealSolution() {
-      alert(`The solution is: ${this.originalText}`);
-      this.lockPuzzleForToday(); 
-      this.incrementStreak();
-    },
-    showHint() {
-      if (this.hintIndex < this.additionalHints.length) {
-        this.currentHintToShow = this.additionalHints[this.hintIndex];
-        this.hintIndex++;
+checkWin() {
+  if (this.decodedText === this.originalText) {
+    this.isSolved = true;
+    this.isGiveUp = false;
+    this.lockPuzzleForToday(); 
+    this.incrementStreak();
+  }
+},
+revealSolution() {
+  alert(`The solution is: ${this.originalText}`);
+  this.lockPuzzleForToday(); 
+  this.incrementStreak();
+},
+showHint() {
+  if (this.hintIndex < this.additionalHints.length) {
+    this.currentHintToShow = this.additionalHints[this.hintIndex];
+    this.hintIndex++;
 
-        if (this.hintIndex === this.additionalHints.length) {
-          this.showGiveUp = true;
-        }
-      } else {
-        this.currentHintToShow = "No more hints available!";
-      }
-    },
-    lockPuzzleForToday() {
+    if (this.hintIndex === this.additionalHints.length) {
+      this.showGiveUp = true;
+    }
+  } else {
+    this.currentHintToShow = "No more hints available!";
+  }
+},
+lockPuzzleForToday() {
   this.isPuzzleLocked = true;
   localStorage.setItem("puzzleLocked", "true");
   localStorage.setItem("isSolved", this.isSolved ? "true" : "false");
   this.modalContent = this.isSolved ? "You solved it!" : "Try again tomorrow!";
   this.startCountdownToMidnight();
-},
-  
-  giveUp() {
-    this.isGiveUp = true;
-    this.isSolved = false;
-    this.lockPuzzleForToday();
-    this.giveUpMessage = "You gave up. Try again next time!";
-    localStorage.setItem("isGiveUp", "true");
-    localStorage.setItem("isSolved", "false");
-    this.modalContent = "Try again tomorrow!";
   },
-  startCountdownToMidnight() {
-  const updateCountdown = () => {
-    const now = new Date();
-
-    const utcNow = now.getTime() + now.getTimezoneOffset() * 60000;
-
-    const estOffset = -5 * 60 * 60000;
-    const edtOffset = -4 * 60 * 60000;
-
-    const estDate = new Date(utcNow + estOffset);
-    const january = new Date(estDate.getFullYear(), 0, 1);
-    const july = new Date(estDate.getFullYear(), 6, 1);
-    const isDST = estDate.getTimezoneOffset() < Math.max(january.getTimezoneOffset(), july.getTimezoneOffset());
-    const easternOffset = isDST ? edtOffset : estOffset;
-
-    const easternTime = new Date(utcNow + easternOffset);
-
-    const midnightEST = new Date(easternTime);
-    midnightEST.setHours(24, 0, 0, 0);
-
-    const timeLeft = midnightEST - easternTime;
-
-    if (timeLeft <= 0) {
-      this.resetForNewDay();
-    } else {
-      const hours = Math.floor(timeLeft / (1000 * 60 * 60));
-      const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-      this.countdown = `${hours}h ${minutes}m ${seconds}s`;
-    }
-  };
-
-  updateCountdown();
-  setInterval(updateCountdown, 1000);
+  
+giveUp() {
+  this.isGiveUp = true;
+  this.isSolved = false;
+  this.lockPuzzleForToday();
+  this.giveUpMessage = "You gave up. Try again next time!";
+  localStorage.setItem("isGiveUp", "true");
+  localStorage.setItem("isSolved", "false");
+  this.modalContent = "Try again tomorrow!";
 },
-    incrementStreak() {
-      this.currentStreak++;
-      localStorage.setItem("currentStreak", this.currentStreak);
-      if (this.currentStreak > this.highestStreak) {
-        this.highestStreak = this.currentStreak;
-        localStorage.setItem("highestStreak", this.highestStreak);
-      }
-    },
-    resetForNewDay() {
-  console.log("New day detected! Resetting puzzle...");
+startCountdownToMidnight() {
+const updateCountdown = () => {
+  const now = new Date();
 
-  localStorage.removeItem("puzzleLocked");
-  localStorage.removeItem("isSolved");
-  localStorage.removeItem("isGiveUp");
+  const utcNow = now.getTime() + now.getTimezoneOffset() * 60000;
 
+  const estOffset = -5 * 60 * 60000;
+  const edtOffset = -4 * 60 * 60000;
+
+  const estDate = new Date(utcNow + estOffset);
+  const january = new Date(estDate.getFullYear(), 0, 1);
+  const july = new Date(estDate.getFullYear(), 6, 1);
+  const isDST = estDate.getTimezoneOffset() < Math.max(january.getTimezoneOffset(), july.getTimezoneOffset());
+  const easternOffset = isDST ? edtOffset : estOffset;
+
+  const easternTime = new Date(utcNow + easternOffset);
+
+  const midnightEST = new Date(easternTime);
+  midnightEST.setHours(24, 0, 0, 0);
+
+  const timeLeft = midnightEST - easternTime;
+
+  if (timeLeft <= 0) {
+    this.resetForNewDay();
+  } else {
+    const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+    const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+    this.countdown = `${hours}h ${minutes}m ${seconds}s`;
+  }
+};
+
+updateCountdown();
+setInterval(updateCountdown, 1000);
+},
+incrementStreak() {
+  this.currentStreak++;
+  localStorage.setItem("currentStreak", this.currentStreak);
+  if (this.currentStreak > this.highestStreak) {
+    this.highestStreak = this.currentStreak;
+    localStorage.setItem("highestStreak", this.highestStreak);
+  }
+},
+resetForNewDay() {
+console.log("New day detected! Resetting puzzle...");
+
+localStorage.removeItem("puzzleLocked");
+localStorage.removeItem("isSolved");
+localStorage.removeItem("isGiveUp");
+
+this.isSolved = false;
+this.isGiveUp = false;
+this.isPuzzleLocked = false;
+
+this.selectPuzzleForToday();
+this.resetStreak(); // Reset streak if not solved
+this.startCountdownToMidnight();
+},
+resetPuzzle() {
   this.isSolved = false;
   this.isGiveUp = false;
   this.isPuzzleLocked = false;
-
+  this.guesses = [];
+  this.currentHintToShow = "";
+  this.hintIndex = 0;
+  localStorage.removeItem("puzzleLocked");
+  localStorage.removeItem("isSolved");
+  localStorage.removeItem("isGiveUp");
   this.selectPuzzleForToday();
-  this.resetStreak(); // Reset streak if not solved
-  this.startCountdownToMidnight();
 },
-    resetPuzzle() {
-      this.isSolved = false;
-      this.isGiveUp = false;
-      this.isPuzzleLocked = false;
-      this.guesses = [];
-      this.currentHintToShow = "";
-      this.hintIndex = 0;
-      localStorage.removeItem("puzzleLocked");
-      localStorage.removeItem("isSolved");
-      localStorage.removeItem("isGiveUp");
-      this.selectPuzzleForToday();
-    },
-    showHint() {
-      if (this.hintIndex < this.additionalHints.length) {
-        this.currentHintToShow = this.additionalHints[this.hintIndex];
-        this.hintIndex++;
-      }
-    },
-    resetStreak() {
-      this.currentStreak = 0;
-      localStorage.setItem("currentStreak", this.currentStreak);
-    },
-    loadStreaks() {
-      this.highestStreak = parseInt(localStorage.getItem("highestStreak")) || 0;
-      this.currentStreak = parseInt(localStorage.getItem("currentStreak")) || 0;
-      if (!this.isPuzzleSolvedToday() && !this.isPuzzleLocked) {
-        this.currentStreak = 0;
-      }
-    },
-    isPuzzleSolvedToday() {
-      const puzzleSolved = localStorage.getItem("isSolved") === "true";
-      const isGiveUp = localStorage.getItem("isGiveUp") === "true";
-      return puzzleSolved || isGiveUp;
-    },
-  },
-  mounted() {
+showHint() {
+  if (this.hintIndex < this.additionalHints.length) {
+    this.currentHintToShow = this.additionalHints[this.hintIndex];
+    this.hintIndex++;
+  }
+},
+resetStreak() {
+  this.currentStreak = 0;
+  localStorage.setItem("currentStreak", this.currentStreak);
+},
+loadStreaks() {
+  this.highestStreak = parseInt(localStorage.getItem("highestStreak")) || 0;
+  this.currentStreak = parseInt(localStorage.getItem("currentStreak")) || 0;
+  if (!this.isPuzzleSolvedToday() && !this.isPuzzleLocked) {
+    this.currentStreak = 0;
+  }
+},
+isPuzzleSolvedToday() {
+  const puzzleSolved = localStorage.getItem("isSolved") === "true";
+  const isGiveUp = localStorage.getItem("isGiveUp") === "true";
+  return puzzleSolved || isGiveUp;
+},
+generateShareResult() {
+  const today = new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+  const hintCount = this.additionalHints.length;
+  const hintsUsed = this.hintIndex;
+
+  const progressBar = this.codedPhrase
+    .split("")
+    .map((char, index) => (char.match(/[A-Z]/) ? (this.guesses[index] ? "🟩" : "⬜") : "⬛"))
+    .join("");
+
+  const resultText = `Secret Agent — ${today}\n` +
+    `${this.isSolved ? `✅ Puzzle solved` : "❌ Gave up"}\n` +
+    `Streak: ${this.currentStreak} days\n` +
+    `Hints used: ${hintsUsed}/${hintCount}\n` +
+    `${progressBar}`;
+
+  console.log(resultText);
+
+  navigator.clipboard.writeText(resultText).then(() => {
+    alert("Result copied to clipboard. Share with your friends.");
+  });
+},
+},
+mounted() {
   this.loadPuzzles();
 
   const lastPuzzleDate = localStorage.getItem("lastPuzzleDate");
@@ -298,8 +323,8 @@ selectPuzzleForToday() {
     this.isPuzzleLocked = true;
     this.modalContent = "Puzzle is locked. New one arrives at midnight!";
     this.startCountdownToMidnight();
+    }
   }
-}
 };
 
   </script>
@@ -539,6 +564,22 @@ button:disabled {
   width: 100%;
   text-align: center;
 }
+.share-button {
+  background-color: #4caf50;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 10px;
+  transition: background 0.3s ease;
+}
+
+.share-button:hover {
+  background-color: #3e8e41;
+}
+
 
 @keyframes pop {
   0% {
