@@ -5,8 +5,8 @@
     <div class="index">{{ entry }}</div>
     <div class="letter-container">
       <div class="hello">Hello,</div>
-      <div class="instructions">Todays mission: decode this phrase. The rules are simple. Each top letter in each box stands for another letter. If you think X equals O, it will equal O throughout the puzzle. The Solution is accompished by trial and error but you will be given a starting hint seen below. If you need additional hints to solve the puzzle, press 'Unlock Hint'. Enter your guess for each box directly under the existing letter. Good Luck. </div>
-    <div class="hint">YOUR HINT IS: {{ currentHint }}</div>
+      <div class="instructions">Todays mission: decode this phrase. This is a Caesar Cipher, also known as a Shift Cipher. In this puzzle, each letter has been replaced by another, and the entire alphabet has been shifted by a certain number of positions. For example, if the alphabet is shifted 3 places to the right, A becomes D, B becomes E, and so on. The key to solving this puzzle is figuring out how many spaces the alphabet has been shifted. The relationship between letters is consistent throughout the puzzle. For instance, if X equals O, that pattern will apply to every instance of X in the puzzle. You can make your guess for each box by typing directly under the existing letter (see: the question marks). If you get stuck, click “Unlock Hint” for more help. Good Luck. </div>
+    <!-- <div class="hint">YOUR HINT IS: {{ currentHint }}</div> -->
 
     <div class="puzzle">
       <div v-for="(char, index) in codedPhrase" :key="index" class="puzzle-char">
@@ -18,6 +18,8 @@
           maxlength="1"
           v-model="guesses[index]"
           @input="checkWin"
+          class="input-box"
+          placeholder="?"
         />
         <span v-else class="non-letter">{{ char }}</span>
       </div>
@@ -27,14 +29,12 @@
       {{ decodedText }}
     </div>
     <div class="hint-column">
-          <button class="hint-btn" v-if="additionalHints.length > 0" @click="showHint" :disabled="isSolved || isPuzzleLocked || isGiveUp">
-      Unlock Hint
-    </button>
-    <div class="hint-column">
-    <div v-for="(hint, index) in additionalHints" :key="index" class="hint-box" :class="{'locked': index >= hintIndex}">
-      Hint {{ index + 2 }}: {{ index < hintIndex ? hint : 'locked' }}
-    </div>
-  </div>
+      <button class="hint-btn" v-if="additionalHints.length > 0" @click="showHint" :disabled="isSolved || isPuzzleLocked || isGiveUp">
+        Unlock Hint
+      </button>
+      <div v-for="(hint, index) in additionalHints" :key="index" class="hint-box" :class="{'locked': index >= hintIndex}">
+        Hint {{ index + 1 }}: {{ index < hintIndex ? hint : 'locked' }}
+      </div>
     </div>
 
     <div class="give-up" v-if="hintIndex === additionalHints.length && !isPuzzleLocked && !isSolved && !isGiveUp">
@@ -42,42 +42,40 @@
         Give Up?
       </button>
     </div>
-  </div> 
-    <div class="streak">
-      <div>Current Streak: {{ currentStreak }}</div>
-      <div>Highest Streak: {{ highestStreak }}</div>
-    </div>
-    <div v-if="isPuzzleLocked || newPuzzleReady" class="modal-overlay">
-  <div class="modal">
-    <div v-if="isSolved">
-      <h2>Great Work.</h2>
-      <p>Phrase: {{ originalText }}</p>
-      <p>Mission Complete Streak: {{ currentStreak }}</p>
-      <p>Your next mission is in: {{ countdown }}</p>
-    </div>
-    <div v-else-if="isGiveUp">
-      <h2>Try again tomorrow!</h2>
-      <p>Phrase: {{ originalText }}</p>
-      <p>Streak: {{ currentStreak }}</p>
-      <p>Next puzzle in: {{ countdown }}</p>
-    </div>
+  </div>
 
-    <div v-else-if="newPuzzleReady">
-      <h2>New Puzzle Available!</h2>
-      <p>It’s a brand new day. Time for a new challenge!</p>
-      <button @click="resetPuzzle" class="new-puzzle-button">Start New Puzzle</button>
-    </div>
+  <div class="streak">
+    <div>Current Streak: {{ currentStreak }}</div>
+    <div>Highest Streak: {{ highestStreak }}</div>
+  </div>
 
-    <button 
-      @click="generateShareResult" 
-      v-if="isSolved || isGiveUp" 
-      class="share-button">
-      Share Result
-    </button>
+  <div v-if="isPuzzleLocked || newPuzzleReady" class="modal-overlay">
+    <div class="modal">
+      <div v-if="isSolved">
+        <h2>Great Work.</h2>
+        <p>Phrase: {{ originalText }}</p>
+        <p>Mission Complete Streak: {{ currentStreak }}</p>
+        <p>Your next mission is in: {{ countdown }}</p>
+      </div>
+      <div v-else-if="isGiveUp">
+        <h2>Try again tomorrow!</h2>
+        <p>Phrase: {{ originalText }}</p>
+        <p>Streak: {{ currentStreak }}</p>
+        <p>Next puzzle in: {{ countdown }}</p>
+      </div>
+
+      <div v-else-if="newPuzzleReady">
+        <h2>New Puzzle Available!</h2>
+        <p>It’s a brand new day. Time for a new challenge!</p>
+        <button @click="resetPuzzle" class="new-puzzle-button">Start New Puzzle</button>
+      </div>
+
+      <button @click="generateShareResult" v-if="isSolved || isGiveUp" class="share-button">
+        Share Result
+      </button>
+    </div>
   </div>
 </div>
-
-  </div>
 </template>
   
   <script>
@@ -395,7 +393,8 @@ p, h2 {
   flex-wrap: wrap;
   gap: .5rem;
   justify-content: center;
-  margin-bottom: 20px;
+  margin-bottom: 1rem;
+  margin-top: 3rem;
   background-color: #fbfefe;
 }
 
@@ -405,7 +404,7 @@ p, h2 {
   align-items: center;
   width: 40px;
   height: 50px;
-  border: 1px dashed #252525;
+  border: 1px ridge #252525;
   background-color: white;
   font-size: 18px;
   text-transform: uppercase;
@@ -432,8 +431,8 @@ p, h2 {
   background: transparent;
   outline: none;
   text-transform: uppercase;
-  
 }
+
 
 .non-letter {
   font-size: 20px;
@@ -474,6 +473,15 @@ p, h2 {
   border: none;
   cursor: pointer;
   width: 30%;
+}
+
+.input-box {
+  color: #3d3d3d;;
+}
+
+.input-box::placeholder {
+  color: rgb(173, 11, 11);
+  font-weight: 500;
 }
 
 .hint-column {

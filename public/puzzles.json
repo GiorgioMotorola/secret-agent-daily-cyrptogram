@@ -1,118 +1,61 @@
 [
   {
     "entry": "#001", 
-    "date": "2025-03-17",
+    "date": "2025-03-20",
     "time": "00:00:00",
-    "phrase": "HELLO WORLD",
-    "hint": "M equals H",
-    "coded_phrase": "MIPPS ASVPH",
+    "phrase": "ASK YOUR DOCTOR",
+    "coded_phrase": "EWO CSYV HSGXSV",
     "additional_hints": [
-      "I equals E",
-      "P equals L",
-      "A famous phrase used often with computer programmers."
+      "THEME IS Medicine",
+      "LOOSELY DEFINED AS What you may do if you feel allergic to something but you're not sure why",
+      "SHIFT COUNT MAY BE Mop Top Musicians"
     ]
   },
   {
     "entry": "#002", 
-    "date": "2025-03-18",
+    "date": "2025-03-21",
     "time": "00:00:00",
-    "phrase": "BE HONEST",
-    "hint": "V equals S",
-    "coded_phrase": "EH KRQHVW",
+    "phrase": "PAY AT PUMP",
+    "coded_phrase": "YJH JC YDVY",
     "additional_hints": [
-      "W equals T",
-      "H equals E",
-      "A phrase urging someone to be truthful"
+      "THEME IS Gas Stations",
+      "LOOSELY DEFINED AS Card goes in, Car drives off",
+      "SHIFT COUNT MAY BE A Cloud you may prefer to be on"
     ]
   }, {
     "entry": "#003", 
-    "date": "2025-03-19",
+    "date": "2025-03-22",
     "time": "00:00:00",
-    "phrase": "INTO THE WILD",
-    "hint": "Y equals I",
-    "coded_phrase": "YKHZ HLR DYPE",
+    "phrase": "BLUE SCREEN CRASH",
+    "coded_phrase": "NXGQ EODQQZ ODMET",
     "additional_hints": [
-      "H equals T",
-      "L equals H",
-      "A movie title released in 2007"
+      "THEME IS Computers",
+      "LOOSELY DEFINED AS the screen turned weird",
+      "SHIFT COUNT MAY BE these judicious men are angry"
     ]
   }, 
   {
     "entry": "#004", 
-    "date": "2025-03-20",
+    "date": "2025-03-23",
     "time": "00:00:00",
-    "phrase": "A CLEAN SWEEP",
-    "hint": "G equals A",
-    "coded_phrase": "G BCWGQ EOWWN",
+    "phrase": "MEETING IN PROGRESS",
+    "coded_phrase": "PHHWLQJ LQ SURJUHVV",
     "additional_hints": [
-      "B equals C",
-      "W equals E",
-      "A victory in which one side or team wins every game"
+      "THEME IS Work",
+      "LOOSELY DEFINED AS There is a session happening",
+      "SHIFT COUNT MAY BE labor day weekend"
     ]
   }, 
   {
     "entry": "#005", 
-    "date": "2025-03-21",
+    "date": "2025-03-24",
     "time": "00:00:00",
-    "phrase": "SMOOTH SAILING",
-    "hint": "D equals L",
-    "coded_phrase": "MXHHTV MECDCJL",
+    "phrase": "SEVENTH INNING STRETCH",
+    "coded_phrase": "NZQZIOC DIIDIB NOMZOXC",
     "additional_hints": [
-      "C equals I",
-      "H equals O",
-      "No resistance, as if the winds were perfect"
-    ]
-  },
-  {
-    "entry": "#006", 
-    "date": "2025-03-12",
-    "time": "00:00:00",
-    "phrase": "THE SOUND OF SILENCE",
-    "hint": "O equals E",
-    "coded_phrase": "DGO RVSLA VU RNJOLQO",
-    "additional_hints": [
-      "R equals S",
-      "L equals N",
-      "Quietness that speaks volumes"
-    ]
-  },
-  {
-    "entry": "#007", 
-    "date": "2025-03-13",
-    "time": "00:00:00",
-    "phrase": "SPEAK OF THE DEVIL",
-    "hint": "N equals T",
-    "coded_phrase": "LVIBE QU NSI AUWDG",
-    "additional_hints": [
-      "I equals E",
-      "B equals A",
-      "Mention someone, and they appear"
-    ]
-  },
-  {
-    "entry": "#008", 
-    "date": "2025-03-14",
-    "time": "00:00:00",
-    "phrase": "A BLAZE OF GLORY",
-    "hint": "Z equals A",
-    "coded_phrase": "Z CUZTK QO MUQSH",
-    "additional_hints": [
-      "U equals L",
-      "Q equals O",
-      "Something you go out with"
-    ]
-  },
-  {
-    "entry": "#009", 
-    "date": "2025-03-15",
-    "time": "00:00:00",
-    "phrase": "RISE ABOVE",
-    "hint": "Y equals O",
-    "coded_phrase": "OBRZ NGYMZ",
-    "additional_hints": [
-      "Z equals E",
-      "O equals R",
-      "Overcome adversity. Also a famous Hardcore punk bands most famous song"
+      "THEME IS Sports",
+      "LOOSELY DEFINED AS singing about buying peanuts and crackerjacks",
+      "SHIFT COUNT MAY BE your friend just got some good news and you need a quick way to celebrate"
     ]
   }
 ]
