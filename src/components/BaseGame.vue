@@ -55,7 +55,7 @@
         <h2>Great Work.</h2>
         <p>Phrase: {{ originalText }}</p>
         <p>Mission Complete Streak: {{ currentStreak }}</p>
-        <p>Your next mission is in: {{ countdown }}</p>
+        <p>Your next mission will be available 8:00PM EST</p>
       </div>
       <div v-else-if="isGiveUp">
         <h2>Try again tomorrow!</h2>
@@ -72,6 +72,9 @@
       <button @click="generateShareResult" v-if="isSolved || isGiveUp" class="share-button">
         Share Result
       </button>
+      <div v-if="showNotification" class="notification">
+      {{ notificationMessage }}
+    </div>
     </div>
   </div>
 </div>
@@ -100,6 +103,7 @@ export default {
       modalContent: "",
       entry: "",
       newPuzzleReady: false,
+      showNotification: false,
       notificationMessage: '',
     };
   },
@@ -307,10 +311,9 @@ generateShareResult() {
       this.showNotification = true;
       this.notificationMessage = "Result copied to clipboard. Share with your friends.";
       
-      // Hide the notification after 3 seconds
       setTimeout(() => {
         this.showNotification = false;
-      }, 3000);
+      }, 8000);
     });
   },
 },
@@ -623,6 +626,36 @@ button:disabled {
   }
   100% {
     transform: scale(1);
+  }
+}
+
+.notification {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px 20px;
+  background-color: #2D4B73;
+  color: white;
+  border-radius: 5px;
+  font-size: 16px;
+  z-index: 1000;
+  opacity: 0;
+  animation: fadeInOut 3s forwards;
+}
+
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
   }
 }
 </style>
