@@ -210,18 +210,18 @@ giveUp() {
 },
 startCountdownToMidnight() {
   const now = new Date();
-  console.log("⏳ Current time:", now.toLocaleString());
+  console.log("Current time:", now.toLocaleString());
 
   const midnight = new Date();
   midnight.setUTCHours(24, 0, 0, 0); 
 
-  console.log("🎯 Target reset time:", midnight.toLocaleString());
+  console.log("Target reset time:", midnight.toLocaleString());
 
   const timeLeft = midnight - now;
-  console.log(`⏳ Time until reset: ${Math.floor(timeLeft / 1000)}s`);
+  console.log(`Time until reset: ${Math.floor(timeLeft / 1000)}s`);
 
   setTimeout(() => {
-    console.log("🚀 Midnight hit — resetting!");
+    console.log("Midnight hit — resetting!");
     this.resetForNewDay();
   }, timeLeft);
 },
@@ -234,7 +234,7 @@ incrementStreak() {
   }
 },
 resetForNewDay() {
-  console.log("🎉 Resetting for new day!");
+  console.log("Resetting for new day!");
   localStorage.removeItem("puzzleLocked");
   localStorage.removeItem("isSolved");
   localStorage.removeItem("isGiveUp");
@@ -324,7 +324,7 @@ mounted() {
   const today = new Date().toISOString().split("T")[0];
 
   if (lastPuzzleDate !== today) {
-    console.log("🌅 New day detected — resetting!");
+    console.log("New day detected — resetting!");
     this.resetForNewDay();
   }
 
