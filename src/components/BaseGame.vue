@@ -398,7 +398,7 @@ p, h2 {
 .puzzle {
   display: flex;
   flex-wrap: wrap;
-  gap: .5rem;
+  /* gap: .5rem; */
   justify-content: center;
   margin-bottom: 1rem;
   margin-top: 3rem;
@@ -409,20 +409,19 @@ p, h2 {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 40px;
+  width: 30px;
   height: 50px;
-  border: 1px ridge #252525;
+  /* border: 1px ridge #252525; */
   background-color: white;
-  font-size: 18px;
   text-transform: uppercase;
   background-color: #fbfefe;
-  padding: .3rem;
+  /* padding: .3rem; */
 }
 
 .cipher {
-  font-size: 18px;
+  font-size: 25px;
   font-weight: 500;
-  color: #444;
+  color: #000000;
   margin-bottom: 5px;
   background-color: white;
   border-bottom: solid 1px black;  
@@ -433,11 +432,12 @@ p, h2 {
   width: 25px;
   height: 25px;
   text-align: center;
-  font-size: 18px;
+  font-size: 25px;
   border: none;
   background: transparent;
   outline: none;
   text-transform: uppercase;
+  color: #555;
 }
 
 
