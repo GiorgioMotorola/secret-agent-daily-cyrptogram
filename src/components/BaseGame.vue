@@ -64,11 +64,10 @@
         <p>Next puzzle in: {{ countdown }}</p>
       </div>
 
-      <div v-else-if="newPuzzleReady">
-        <h2>New Puzzle Available!</h2>
-        <p>It’s a brand new day. Time for a new challenge!</p>
-        <button @click="resetPuzzle" class="new-puzzle-button">Start New Puzzle</button>
-      </div>
+      <div v-else-if="newPuzzleReady" class="new-puzzle-button">
+    <h2>New Puzzle Available</h2>
+    <button class="btn-new-puzzle" @click="resetPuzzle">Start New Puzzle</button>
+  </div>
 
       <button @click="generateShareResult" v-if="isSolved || isGiveUp" class="share-button">
         Share Result
@@ -101,6 +100,7 @@ export default {
       modalContent: "",
       entry: "",
       newPuzzleReady: false,
+      notificationMessage: '',
     };
   },
   computed: {
@@ -288,27 +288,31 @@ isPuzzleSolvedToday() {
   return puzzleSolved || isGiveUp;
 },
 generateShareResult() {
-  const today = new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
-  const hintCount = this.additionalHints.length;
-  const hintsUsed = this.hintIndex;
+    const today = new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+    const hintCount = this.additionalHints.length;
+    const hintsUsed = this.hintIndex;
 
-  const progressBar = this.codedPhrase
-    .split("")
-    .map((char, index) => (char.match(/[A-Z]/) ? (this.guesses[index] ? "🟩" : "⬜") : "⬛"))
-    .join("");
+    const progressBar = this.codedPhrase
+      .split("")
+      .map((char, index) => (char.match(/[A-Z]/) ? (this.guesses[index] ? "🟩" : "⬜") : "⬛"))
+      .join("");
 
-  const resultText = `Secret Agent — ${today}\n` +
-    `${this.isSolved ? `✅ Puzzle solved` : "❌ Gave up"}\n` +
-    `Streak: ${this.currentStreak} days\n` +
-    `Hints used: ${hintsUsed}/${hintCount}\n` +
-    `${progressBar}`;
+    const resultText = `Secret Agent — ${today}\n` +
+      `${this.isSolved ? `✅ Puzzle solved` : "❌ Gave up"}\n` +
+      `Streak: ${this.currentStreak} days\n` +
+      `Hints used: ${hintsUsed}/${hintCount}\n` +
+      `${progressBar}`;
 
-  console.log(resultText);
-
-  navigator.clipboard.writeText(resultText).then(() => {
-    alert("Result copied to clipboard. Share with your friends.");
-  });
-},
+    navigator.clipboard.writeText(resultText).then(() => {
+      this.showNotification = true;
+      this.notificationMessage = "Result copied to clipboard. Share with your friends.";
+      
+      // Hide the notification after 3 seconds
+      setTimeout(() => {
+        this.showNotification = false;
+      }, 3000);
+    });
+  },
 },
 mounted() {
   this.loadPuzzles();
@@ -590,6 +594,26 @@ button:disabled {
 
 .share-button:hover {
   background-color: #3e8e41;
+}
+
+.new-puzzle-button{
+  background-color: #ffffff;
+}
+
+.btn-new-puzzle {
+  background-color: #303330; 
+  color: white; 
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-top: 2rem;
+}
+
+.btn-new-puzzle:hover {
+  background-color: #2D4B73;
 }
 
 
