@@ -424,7 +424,7 @@ p, h2 {
   color: #000000;
   margin-bottom: 5px;
   background-color: white;
-  border-bottom: solid 1px black;  
+  border-bottom: solid 2px black;  
   background-color: #fbfefe;
 }
 
