@@ -9,21 +9,20 @@
     <!-- <div class="hint">YOUR HINT IS: {{ currentHint }}</div> -->
 
     <div class="puzzle">
-      <div v-for="(char, index) in codedPhrase" :key="index" class="puzzle-char">
-        <span class="cipher">{{ char }}</span>
-
-        <input
-          v-if="char.match(/[A-Z]/) && !isPuzzleLocked && !isGiveUp"
-          type="text"
-          maxlength="1"
-          v-model="guesses[index]"
-          @input="checkWin"
-          class="input-box"
-          placeholder="?"
-        />
-        <span v-else class="non-letter">{{ char }}</span>
-      </div>
-    </div>
+  <div v-for="(char, index) in codedPhrase" :key="index" class="puzzle-char">
+    <span class="cipher">{{ char }}</span>
+    <input
+      v-if="char.match(/[A-Z]/) && !isPuzzleLocked && !isGiveUp"
+      type="text"
+      maxlength="1"
+      v-model="guesses[index]"
+      @input="updateGuesses(index, guesses[index])"
+      class="input-box"
+      placeholder="?"
+    />
+    <span v-else class="non-letter">{{ char }}</span>
+  </div>
+</div>
 
     <div class="progress">
       {{ decodedText }}
@@ -167,12 +166,28 @@ selectPuzzleForToday() {
 },
 
 checkWin() {
-  if (this.decodedText === this.originalText) {
-    this.isSolved = true;
-    this.isGiveUp = false;
-    this.lockPuzzleForToday(); 
-    this.incrementStreak();
+
+if (this.decodedText === this.originalText) {
+
+  this.isSolved = true;
+
+  this.lockPuzzleForToday();
+
+  this.incrementStreak();
   }
+},
+updateGuesses(index, value) {
+  const char = this.codedPhrase[index];
+
+  // Update the guesses for all occurrences of 'char' to 'value'
+  for (let i = 0; i < this.codedPhrase.length; i++) {
+    if (this.codedPhrase[i] === char) {
+      this.guesses[i] = value.toUpperCase(); // Directly assign the value
+    }
+  }
+
+  // Check for win after updating all occurrences
+  this.checkWin();
 },
 revealSolution() {
   alert(`The solution is: ${this.originalText}`);
